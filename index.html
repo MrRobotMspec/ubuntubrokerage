@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Aegis Shield Brokers | Commercial Risk Authority South Africa</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --gold: #D4AF37;
+      --gold-dark: #b8952e;
+      --obsidian: #0a0c10;
+      --slate-deep: #11151c;
+      --emerald-tint: rgba(16, 185, 129, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--obsidian);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #e2e8f0;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    .font-display {
+      font-family: 'Inter', system-ui, sans-serif;
+      letter-spacing: -0.03em;
+    }
+    .gold-text { color: var(--gold); }
+    .gold-border { border-color: var(--gold); }
+    .gold-bg { background-color: var(--gold); }
+    .gold-glow { text-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+    .gold-shadow { box-shadow: 0 10px 40px -10px rgba(212, 175, 55, 0.4); }
+    .emerald-glass {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(10, 12, 16, 0.85) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(16, 185, 129, 0.12);
+    }
+    .glass-panel {
+      background: rgba(17, 21, 28, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(212, 175, 55, 0.12);
+    }
+    .nav-glass {
+      background: rgba(10, 12, 16, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    }
+    #shield-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* Custom range slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold) var(--slider-pct, 50%), #1e2530 var(--slider-pct, 50%), #1e2530 100%);
+      border-radius: 999px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      background: radial-gradient(circle at 30% 30%, #f5e7a7, var(--gold) 60%, var(--gold-dark));
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #0a0c10;
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2), 0 4px 12px rgba(0, 0, 0, 0.5);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 0 6px rgba(212, 175, 55, 0.3), 0 4px 16px rgba(0, 0, 0, 0.6);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      background: radial-gradient(circle at 30% 30%, #f5e7a7, var(--gold) 60%, var(--gold-dark));
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #0a0c10;
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 6px;
+      background: #1e2530;
+      border-radius: 999px;
+    }
+    input[type="range"]::-moz-range-progress {
+      height: 6px;
+      background: var(--gold);
+      border-radius: 999px;
+    }
+    .selector-btn {
+      transition: all 0.25s ease;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: rgba(17, 21, 28, 0.6);
+    }
+    .selector-btn:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      background: rgba(212, 175, 55, 0.05);
+    }
+    .selector-btn.active {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(16, 185, 129, 0.05));
+      box-shadow: 0 0 24px -6px rgba(212, 175, 55, 0.4);
+    }
+    .tier-btn.active {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(16, 185, 129, 0.08));
+      box-shadow: 0 0 20px -4px rgba(212, 175, 55, 0.5);
+    }
+    .feature-card {
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: 0 24px 48px -16px rgba(212, 175, 55, 0.2);
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .pulse-dot {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @media (max-width: 768px) {
+      .hero-shield-container { height: 320px !important; }
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--obsidian); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="nav-glass fixed top-0 left-0 w-full z-50 px-5 md:px-10 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="relative">
+        <i class="fas fa-shield-halved text-2xl gold-text"></i>
+        <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full pulse-dot" style="background:#D4AF37;"></span>
+      </div>
+      <div>
+        <span class="font-display font-extrabold tracking-tight text-white text-lg">Aegis<span class="gold-text">Shield</span></span>
+        <span class="hidden md:inline-block text-[10px] text-gray-500 ml-2 tracking-widest">FSP 49921</span>
+      </div>
+    </div>
+    <div class="hidden lg:flex items-center space-x-8 text-sm text-gray-300">
+      <a href="#exposures" class="hover:text-[#D4AF37] transition">Exposures</a>
+      <a href="#calculator" class="hover:text-[#D4AF37] transition">Calculator</a>
+      <a href="#compliance" class="hover:text-[#D4AF37] transition">Compliance</a>
+      <a href="#consult" class="px-5 py-2 rounded-full text-sm font-semibold gold-bg text-black hover:bg-amber-500 transition gold-shadow">
+        <i class="fas fa-phone-alt mr-2"></i>Broker Access
+      </a>
+    </div>
+    <div class="lg:hidden flex items-center space-x-5 text-gray-300">
+      <a href="#calculator"><i class="fas fa-calculator text-xl gold-text"></i></a>
+      <a href="#consult"><i class="fas fa-bars text-xl"></i></a>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION WITH INTERACTIVE 3D SVG SHIELD -->
+  <header class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+    <!-- Matrix network canvas background -->
+    <canvas id="shield-canvas"></canvas>
+
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        <!-- HERO TEXT -->
+        <div>
+          <div class="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-[0.2em] gold-text border border-[#D4AF37]/40 rounded-full bg-[#D4AF37]/5">
+            <i class="fas fa-gem mr-2"></i>SOUTH AFRICAN COMMERCIAL RISK AUTHORITY
+          </div>
+          <h1 class="font-display text-5xl md:text-6xl xl:text-7xl font-extrabold leading-[1.05] tracking-tight text-white">
+            Impenetrable<br>
+            <span class="gold-text gold-glow">Commercial</span><br>
+            Asset Protection.
+          </h1>
+          <p class="mt-7 text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed">
+            Structured risk transfer for South African enterprise—from photovoltaic grids to N3 freight corridors. 
+            We engineer cover that moves with your balance sheet.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-4">
+            <a href="#calculator" class="px-7 py-3.5 gold-bg text-black font-bold rounded-full hover:bg-amber-500 transition gold-shadow flex items-center">
+              <i class="fas fa-chart-line mr-2"></i> Risk Calculator
+            </a>
+            <a href="#consult" class="px-7 py-3.5 border border-gray-700 rounded-full text-gray-200 hover:border-[#D4AF37] hover:text-[#D4AF37] transition flex items-center">
+              <i class="fas fa-file-contract mr-2"></i> FSP Consultation
+            </a>
+          </div>
+          <div class="mt-10 flex items-center gap-6 text-xs text-gray-400 flex-wrap">
+            <div class="flex items-center"><i class="fas fa-check-circle gold-text mr-2"></i> FAIS Aligned</div>
+            <div class="flex items-center"><i class="fas fa-check-circle gold-text mr-2"></i> POPIA Compliant</div>
+            <div class="flex items-center"><i class="fas fa-check-circle gold-text mr-2"></i> B-BBEE Level 1</div>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE 3D SVG SHIELD -->
+        <div class="hero-shield-container relative h-[480px] flex items-center justify-center">
+          <svg id="shieldSvg" viewBox="0 0 400 480" class="w-full h-full max-w-[420px]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f5e7a7" />
+                <stop offset="50%" stop-color="#D4AF37" />
+                <stop offset="100%" stop-color="#8b6f1e" />
+              </linearGradient>
+              <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(16,185,129,0.3)" />
+                <stop offset="100%" stop-color="rgba(16,185,129,0)" />
+              </linearGradient>
+              <radialGradient id="shieldGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(212,175,55,0.25)" />
+                <stop offset="100%" stop-color="rgba(212,175,55,0)" />
+              </radialGradient>
+              <filter id="glowFilter">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Glow background -->
+            <circle cx="200" cy="240" r="180" fill="url(#shieldGlow)" />
+
+            <!-- Shield outer geometric path -->
+            <path id="shieldOuter" d="M200 30 L350 100 L350 280 Q350 400 200 450 Q50 400 50 280 L50 100 Z" 
+                  fill="none" stroke="url(#goldGrad)" stroke-width="2.5" filter="url(#glowFilter)" opacity="0.9"/>
+
+            <!-- Inner shield facet 1 -->
+            <path id="shieldInner1" d="M200 70 L310 120 L310 270 Q310 370 200 410 Q90 370 90 270 L90 120 Z" 
+                  fill="none" stroke="#D4AF37" stroke-width="1.5" opacity="0.5"/>
+
+            <!-- Inner shield facet 2 (rotated) -->
+            <path id="shieldInner2" d="M200 110 L270 145 L270 260 Q270 345 200 375 Q130 345 130 260 L130 145 Z" 
+                  fill="url(#emeraldGrad)" stroke="#10b981" stroke-width="1" opacity="0.7"/>
+
+            <!-- Central emblem -->
+            <path id="shieldCore" d="M200 160 L245 185 L245 235 Q245 280 200 300 Q155 280 155 235 L155 185 Z" 
+                  fill="rgba(212,175,55,0.08)" stroke="#D4AF37" stroke-width="1.5"/>
+
+            <!-- Cross lines for 3D depth -->
+            <line x1="200" y1="30" x2="200" y2="450" stroke="#D4AF37" stroke-width="0.5" opacity="0.25"/>
+            <line x1="50" y1="240" x2="350" y2="240" stroke="#D4AF37" stroke-width="0.5" opacity="0.25"/>
+
+            <!-- Corner markers -->
+            <circle id="corner1" cx="200" cy="30" r="4" fill="#D4AF37"/>
+            <circle id="corner2" cx="350" cy="100" r="4" fill="#D4AF37"/>
+            <circle id="corner3" cx="350" cy="280" r="4" fill="#D4AF37"/>
+            <circle id="corner4" cx="50" cy="280" r="4" fill="#D4AF37"/>
+            <circle id="corner5" cx="50" cy="100" r="4" fill="#D4AF37"/>
+
+            <!-- Inner nodes -->
+            <circle id="node1" cx="200" cy="160" r="3" fill="#10b981"/>
+            <circle id="node2" cx="245" cy="185" r="3" fill="#10b981"/>
+            <circle id="node3" cx="245" cy="235" r="3" fill="#10b981"/>
+            <circle id="node4" cx="200" cy="300" r="3" fill="#10b981"/>
+            <circle id="node5" cx="155" cy="235" r="3" fill="#10b981"/>
+            <circle id="node6" cx="155" cy="185" r="3" fill="#10b981"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-gray-500 text-xs tracking-widest">
+      <i class="fas fa-chevron-down animate-bounce"></i>
+    </div>
+  </header>
+
+  <!-- EXPOSURES SECTION -->
+  <section id="exposures" class="relative z-10 py-24 px-5 md:px-10 bg-gradient-to-b from-transparent to-[#0a0c10]">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-[#D4AF37] font-bold tracking-[0.2em] text-xs">SOUTH AFRICAN MARKET EXPOSURES</span>
+        <h2 class="font-display text-4xl md:text-5xl font-extrabold mt-4 text-white">Where enterprise risk lives.</h2>
+        <p class="text-gray-400 mt-4 max-w-2xl mx-auto">We address the structural risks unique to South African commercial operations—grid instability, corridor security, and tax-aligned risk restructuring.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
+        <!-- Card 1: Solar/Grid -->
+        <div class="feature-card glass-panel rounded-2xl p-8">
+          <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-6" style="background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(16,185,129,0.08)); border: 1px solid rgba(212,175,55,0.3);">
+            <i class="fas fa-solar-panel text-2xl gold-text"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Grid Interruption & Photovoltaic Protection</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Comprehensive cover for commercial solar farms, battery storage, and embedded generation. Protect against load-shedding revenue loss, inverter failure, and grid-tie disruption.
+          </p>
+          <div class="mt-6 pt-5 border-t border-gray-800 flex items-center text-xs text-[#D4AF37] font-semibold">
+            <i class="fas fa-bolt mr-2"></i> Renewable asset specialists
+          </div>
+        </div>
+
+        <!-- Card 2: Logistics -->
+        <div class="feature-card glass-panel rounded-2xl p-8">
+          <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-6" style="background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(16,185,129,0.08)); border: 1px solid rgba(212,175,55,0.3);">
+            <i class="fas fa-truck-fast text-2xl gold-text"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">N3/N1 Freight Corridor Logistics</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            End-to-end cargo and fleet cover for high-risk corridors. Mitigate theft, hijacking, and delay exposure with corridor-specific underwriting and tracking integration.
+          </p>
+          <div class="mt-6 pt-5 border-t border-gray-800 flex items-center text-xs text-[#D4AF37] font-semibold">
+            <i class="fas fa-route mr-2"></i> Corridor risk engineering
+          </div>
+        </div>
+
+        <!-- Card 3: Tax restructuring -->
+        <div class="feature-card glass-panel rounded-2xl p-8">
+          <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-6" style="background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(16,185,129,0.08)); border: 1px solid rgba(212,175,55,0.3);">
+            <i class="fas fa-file-invoice-dollar text-2xl gold-text"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Section 12B / 12BA Tax-Aligned Risk</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Structure your asset protection to align with South African tax incentives. We coordinate with your tax advisors to optimize premium deductibility and capital allowances.
+          </p>
+          <div class="mt-6 pt-5 border-t border-gray-800 flex items-center text-xs text-[#D4AF37] font-semibold">
+            <i class="fas fa-balance-scale mr-2"></i> Tax-aligned structuring
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE PREMIUM CALCULATOR -->
+  <section id="calculator" class="relative z-10 py-24 px-5 md:px-10">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-14">
+        <span class="text-[#D4AF37] font-bold tracking-[0.2em] text-xs">COMMERCIAL RISK CALCULATOR</span>
+        <h2 class="font-display text-4xl md:text-5xl font-extrabold mt-4 text-white">Model your premium in real time.</h2>
+        <p class="text-gray-400 mt-4 max-w-2xl mx-auto">Adjust asset category, value, and risk tier to receive an indicative monthly premium and cover limit.</p>
+      </div>
+
+      <div class="emerald-glass rounded-3xl p-6 md:p-10 lg:p-12">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
+          
+          <!-- INPUTS COLUMN -->
+          <div class="lg:col-span-3 space-y-9">
+            
+            <!-- Asset Category Selector -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-300 mb-4 tracking-wide">
+                <i class="fas fa-layer-group gold-text mr-2"></i>ASSET CATEGORY
+              </label>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button type="button" class="selector-btn active rounded-xl p-4 text-left" data-category="solar" data-rate="0.0042" data-cover-mult="1.0">
+                  <i class="fas fa-solar-panel gold-text text-xl mb-2"></i>
+                  <div class="text-xs font-bold text-white leading-tight">Solar Infrastructure & Grid Backup</div>
+                </button>
+                <button type="button" class="selector-btn rounded-xl p-4 text-left" data-category="logistics" data-rate="0.0056" data-cover-mult="1.15">
+                  <i class="fas fa-truck gold-text text-xl mb-2"></i>
+                  <div class="text-xs font-bold text-white leading-tight">Logistics & Supply Chain Fleet</div>
+                </button>
+                <button type="button" class="selector-btn rounded-xl p-4 text-left" data-category="property" data-rate="0.0038" data-cover-mult="1.08">
+                  <i class="fas fa-building gold-text text-xl mb-2"></i>
+                  <div class="text-xs font-bold text-white leading-tight">Commercial Property & Agro-Processing</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Asset Value Slider -->
+            <div>
+              <div class="flex justify-between items-center mb-4">
+                <label class="text-sm font-semibold text-gray-300 tracking-wide">
+                  <i class="fas fa-coins gold-text mr-2"></i>TOTAL ASSET VALUE
+                </label>
+                <span id="assetValueDisplay" class="text-2xl font-extrabold gold-text font-display">R 5,000,000</span>
+              </div>
+              <input type="range" id="assetValueSlider" min="500000" max="50000000" step="100000" value="5000000">
+              <div class="flex justify-between text-xs text-gray-500 mt-2">
+                <span>R 500,000</span>
+                <span>R 50,000,000</span>
+              </div>
+            </div>
+
+            <!-- Risk Multiplier Tier -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-300 mb-4 tracking-wide">
+                <i class="fas fa-shield-alt gold-text mr-2"></i>RISK MULTIPLIER TIER
+              </label>
+              <div class="grid grid-cols-3 gap-3">
+                <button type="button" class="tier-btn active rounded-xl p-4 text-center" data-tier="low" data-multiplier="0.85">
+                  <i class="fas fa-lock text-emerald-400 text-lg mb-1"></i>
+                  <div class="text-xs font-bold text-white">Low</div>
+                  <div class="text-[10px] text-gray-400 mt-1">High Security / Suburbs</div>
+                </button>
+                <button type="button" class="tier-btn rounded-xl p-4 text-center" data-tier="medium" data-multiplier="1.0">
+                  <i class="fas fa-shield text-amber-400 text-lg mb-1"></i>
+                  <div class="text-xs font-bold text-white">Medium</div>
+                  <div class="text-[10px] text-gray-400 mt-1">Standard Commercial</div>
+                </button>
+                <button type="button" class="tier-btn rounded-xl p-4 text-center" data-tier="high" data-multiplier="1.35">
+                  <i class="fas fa-exclamation-triangle text-red-400 text-lg mb-1"></i>
+                  <div class="text-xs font-bold text-white">High</div>
+                  <div class="text-[10px] text-gray-400 mt-1">Critical Corridors</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Fine print -->
+            <div class="flex items-start space-x-3 text-xs text-gray-500">
+              <i class="fas fa-info-circle gold-text mt-0.5"></i>
+              <p>Indicative premium only. Final underwriting subject to asset survey, security audit, and claims history. Brokerage-backed cover limit includes reinsurance capacity.</p>
+            </div>
+          </div>
+
+          <!-- RESULTS COLUMN -->
+          <div class="lg:col-span-2">
+            <div class="rounded-2xl p-8 h-full flex flex-col justify-between" style="background: linear-gradient(160deg, rgba(212,175,55,0.08), rgba(10,12,16,0.9)); border: 1px solid rgba(212,175,55,0.25);">
+              <div>
+                <div class="text-xs font-bold tracking-widest text-gray-400 mb-6">
+                  <i class="fas fa-calculator gold-text mr-2"></i>LIVE ESTIMATE
+                </div>
+
+                <div class="mb-8">
+                  <div class="text-xs text-gray-400 mb-2 uppercase tracking-wide">Estimated Monthly Premium</div>
+                  <div id="premiumDisplay" class="text-4xl md:text-5xl font-extrabold gold-text font-display gold-glow">R 17,500</div>
+                  <div class="text-[10px] text-gray-500 mt-2">Excl. VAT · Monthly debit order</div>
+                </div>
+
+                <div class="mb-8 pt-6 border-t border-gray-700/50">
+                  <div class="text-xs text-gray-400 mb-2 uppercase tracking-wide">Brokerage-Backed Cover Limit</div>
+                  <div id="coverDisplay" class="text-2xl md:text-3xl font-bold text-white font-display">R 5,000,000</div>
+                  <div class="text-[10px] text-gray-500 mt-2">Aggregate reinsurance capacity</div>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                  <div class="flex justify-between">
+                    <span class="text-gray-400">Base rate</span>
+                    <span id="baseRateDisplay" class="text-gray-200 font-mono">0.42%</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-400">Risk multiplier</span>
+                    <span id="multiplierDisplay" class="text-gray-200 font-mono">0.85x</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-400">Annual premium</span>
+                    <span id="annualDisplay" class="text-gray-200 font-mono">R 210,000</span>
+                  </div>
+                </div>
+              </div>
+
+              <a href="#consult" class="mt-8 w-full gold-bg text-black font-bold py-4 rounded-full hover:bg-amber-500 transition flex items-center justify-center gold-shadow">
+                <i class="fas fa-file-signature mr-2"></i> Request Consultation with FSP Broker
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPLIANCE SECTION -->
+  <section id="compliance" class="relative z-10 py-24 px-5 md:px-10 bg-[#0a0c10]">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="text-[#D4AF37] font-bold tracking-[0.2em] text-xs">REGULATORY FRAMEWORK</span>
+          <h2 class="font-display text-4xl md:text-5xl font-extrabold mt-4 text-white leading-tight">Compliance is our foundation.</h2>
+          <p class="text-gray-400 mt-6 text-lg leading-relaxed">
+            Aegis Shield Brokers operates within the full regulatory framework of South African financial services. 
+            We are committed to transparent advice, ethical underwriting, and client-first risk structuring.
+          </p>
+          <div class="mt-8 space-y-4">
+            <div class="flex items-start space-x-4">
+              <div class="w-8 h-8 rounded-full gold-bg/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <i class="fas fa-check gold-text text-sm"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold text-sm">FAIS Act Compliance</div>
+                <div class="text-gray-500 text-xs mt-1">Financial Advisory and Intermediary Services Act, 2002</div>
+              </div>
+            </div>
+            <div class="flex items-start space-x-4">
+              <div class="w-8 h-8 rounded-full gold-bg/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <i class="fas fa-check gold-text text-sm"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold text-sm">POPIA Data Protection</div>
+                <div class="text-gray-500 text-xs mt-1">Protection of Personal Information Act, 2013</div>
+              </div>
+            </div>
+            <div class="flex items-start space-x-4">
+              <div class="w-8 h-8 rounded-full gold-bg/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <i class="fas fa-check gold-text text-sm"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold text-sm">B-BBEE Level 1 Contributor</div>
+                <div class="text-gray-500 text-xs mt-1">Broad-Based Black Economic Empowerment aligned</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-8 md:p-10">
+          <div class="flex items-center space-x-4 mb-6">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(16,185,129,0.1)); border: 1px solid rgba(212,175,55,0.4);">
+              <i class="fas fa-certificate text-3xl gold-text"></i>
+            </div>
+            <div>
+              <div class="text-white font-bold text-lg">FSP License No: XXXXX</div>
+              <div class="text-gray-400 text-xs">Authorised Financial Services Provider</div>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Aegis Shield Brokers is an Authorised Financial Services Provider (FSP License No: XXXXX). 
+            Terms, conditions, and underwriting criteria apply. All premiums are inclusive of applicable 
+            taxes unless otherwise stated. Cover is subject to policy wording, exclusions, and 
+            satisfactory risk survey.
+          </p>
+          <div class="mt-6 pt-6 border-t border-gray-800 flex flex-wrap gap-4 text-xs text-gray-500">
+            <span><i class="fas fa-phone gold-text mr-1"></i> 0860 AEGIS (23447)</span>
+            <span><i class="fas fa-envelope gold-text mr-1"></i> compliance@aegisshield.co.za</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSULTATION CTA -->
+  <section id="consult" class="relative z-10 py-24 px-5 md:px-10">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="emerald-glass rounded-3xl p-10 md:p-16">
+        <i class="fas fa-shield-halved text-5xl gold-text mb-6"></i>
+        <h2 class="font-display text-3xl md:text-5xl font-extrabold text-white leading-tight">
+          Speak with an FSP-licensed broker.
+        </h2>
+        <p class="text-gray-400 mt-5 max-w-xl mx-auto">
+          Our advisors are available for regional compliance consultations across Gauteng, Western Cape, and KwaZulu-Natal.
+        </p>
+        <form class="mt-10 max-w-xl mx-auto space-y-4" onsubmit="event.preventDefault(); alert('Thank you. An Aegis Shield broker will contact you within one business day.');">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" placeholder="Full name" required class="w-full px-5 py-3.5 rounded-xl bg-[#0a0c10]/70 border border-gray-700 text-white placeholder-gray-500 focus:border-[#D4AF37] focus:outline-none transition text-sm">
+            <input type="email" placeholder="Company email" required class="w-full px-5 py-3.5 rounded-xl bg-[#0a0c10]/70 border border-gray-700 text-white placeholder-gray-500 focus:border-[#D4AF37] focus:outline-none transition text-sm">
+          </div>
+          <input type="text" placeholder="Company / Entity name" required class="w-full px-5 py-3.5 rounded-xl bg-[#0a0c10]/70 border border-gray-700 text-white placeholder-gray-500 focus:border-[#D4AF37] focus:outline-none transition text-sm">
+          <button type="submit" class="w-full gold-bg text-black font-bold py-4 rounded-xl hover:bg-amber-500 transition gold-shadow text-sm">
+            <i class="fas fa-paper-plane mr-2"></i> Request FSP Consultation
+          </button>
+          <p class="text-xs text-gray-500 pt-2">We respect POPIA. Your information is encrypted and never shared.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 border-t border-gray-800 py-12 px-5 md:px-10">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <div class="flex items-center space-x-3 mb-3">
+            <i class="fas fa-shield-halved text-xl gold-text"></i>
+            <span class="font-display font-extrabold text-white text-lg">Aegis<span class="gold-text">Shield</span></span>
+          </div>
+          <p class="text-xs text-gray-500 max-w-md leading-relaxed">
+            Aegis Shield Brokers is an Authorised Financial Services Provider (FSP License No: XXXXX). 
+            Terms, conditions, and underwriting criteria apply.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-6 text-xs text-gray-500">
+          <a href="#" class="hover:text-[#D4AF37] transition">Terms of Service</a>
+          <a href="#" class="hover:text-[#D4AF37] transition">Privacy Policy</a>
+          <a href="#" class="hover:text-[#D4AF37] transition">PAIA Manual</a>
+          <a href="#" class="hover:text-[#D4AF37] transition">FAIS Disclosures</a>
+        </div>
+      </div>
+      <div class="mt-8 pt-6 border-t border-gray-800/50 text-center text-xs text-gray-600">
+        © 2025 Aegis Shield Brokers (Pty) Ltd. All rights reserved. Registered in South Africa.
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    (function() {
+      // ============================================================
+      // 1. INTERACTIVE MATRIX NETWORK CANVAS (behind hero)
+      // ============================================================
+      const canvas = document.getElementById('shield-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H;
+      const NODE_COUNT = 70;
+      const MAX_DIST = 160;
+      const MOUSE_RADIUS = 160;
+      const REPULSION = 0.3;
+      const FRICTION = 0.97;
+      let nodes = [];
+      let mouse = { x: -9999, y: -9999, active: false };
+
+      function resizeCanvas() {
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+        initNodes();
+      }
+
+      function initNodes() {
+        nodes = [];
+        for (let i = 0; i < NODE_COUNT; i++) {
+          nodes.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: (Math.random() - 0.5) * 0.25,
+            r: 1.5 + Math.random() * 2.5,
+            baseR: 1.5 + Math.random() * 2.5
+          });
+        }
+      }
+
+      // Track mouse over entire window
+      window.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+        mouse.active = true;
+      });
+      window.addEventListener('mouseleave', () => {
+        mouse.active = false;
+        mouse.x = -9999; mouse.y = -9999;
+      });
+
+      // Touch support
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+          const rect = canvas.getBoundingClientRect();
+          mouse.x = e.touches[0].clientX - rect.left;
+          mouse.y = e.touches[0].clientY - rect.top;
+          mouse.active = true;
+        }
+      }, { passive: true });
+      window.addEventListener('touchend', () => {
+        mouse.active = false;
+        mouse.x = -9999; mouse.y = -9999;
+      });
+
+      function updateNodes() {
+        for (let n of nodes) {
+          // Random micro-drift
+          if (Math.random() < 0.008) {
+            n.vx += (Math.random() - 0.5) * 0.06;
+            n.vy += (Math.random() - 0.5) * 0.06;
+          }
+
+          // Mouse repulsion
+          if (mouse.active) {
+            const dx = n.x - mouse.x;
+            const dy = n.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < MOUSE_RADIUS && dist > 0.01) {
+              const force = (1 - dist / MOUSE_RADIUS) * REPULSION;
+              const angle = Math.atan2(dy, dx);
+              n.vx += Math.cos(angle) * force;
+              n.vy += Math.sin(angle) * force;
+              n.r = Math.max(1, n.baseR * (0.5 + 0.5 * (dist / MOUSE_RADIUS)));
+            } else {
+              n.r += (n.baseR - n.r) * 0.08;
+            }
+          } else {
+            n.r += (n.baseR - n.r) * 0.08;
+          }
+
+          // Apply friction
+          n.vx *= FRICTION;
+          n.vy *= FRICTION;
+
+          // Clamp speed
+          const maxV = 1.8;
+          if (Math.abs(n.vx) > maxV) n.vx = Math.sign(n.vx) * maxV;
+          if (Math.abs(n.vy) > maxV) n.vy = Math.sign(n.vy) * maxV;
+
+          // Move
+          n.x += n.vx;
+          n.y += n.vy;
+
+          // Bounce boundaries
+          const pad = 10;
+          if (n.x < pad) { n.x = pad; n.vx *= -0.6; }
+          if (n.x > W - pad) { n.x = W - pad; n.vx *= -0.6; }
+          if (n.y < pad) { n.y = pad; n.vy *= -0.6; }
+          if (n.y > H - pad) { n.y = H - pad; n.vy *= -0.6; }
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Dark overlay for depth
+        ctx.fillStyle = 'rgba(10, 12, 16, 0.4)';
+        ctx.fillRect(0, 0, W, H);
+
+        // Draw connections
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const a = nodes[i], b = nodes[j];
+            const dx = a.x - b.x, dy = a.y - b.y;
+            const d2 = dx * dx + dy * dy;
+            const maxD2 = MAX_DIST * MAX_DIST;
+            if (d2 < maxD2) {
+              const d = Math.sqrt(d2);
+              const op = 1 - (d / MAX_DIST);
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.strokeStyle = `rgba(212, 175, 55, ${op * 0.25})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw nodes
+        for (let n of nodes) {
+          // Glow
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * 3, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(212, 175, 55, 0.06)';
+          ctx.fill();
+
+          // Core
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          const grad = ctx.createRadialGradient(n.x - 1, n.y - 1, 0.5, n.x, n.y, n.r * 1.5);
+          grad.addColorStop(0, '#f5e7a7');
+          grad.addColorStop(0.6, '#D4AF37');
+          grad.addColorStop(1, '#8b6f1e');
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+      }
+
+      function loop() {
+        updateNodes();
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      function initCanvas() {
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        loop();
+      }
+
+      // ============================================================
+      // 2. INTERACTIVE 3D SVG SHIELD (cursor-reactive rotation)
+      // ============================================================
+      const shieldSvg = document.getElementById('shieldSvg');
+      const shieldOuter = document.getElementById('shieldOuter');
+      const shieldInner1 = document.getElementById('shieldInner1');
+      const shieldInner2 = document.getElementById('shieldInner2');
+      const shieldCore = document.getElementById('shieldCore');
+      const cornerMarkers = ['corner1','corner2','corner3','corner4','corner5'].map(id => document.getElementById(id));
+      const innerNodes = ['node1','node2','node3','node4','node5','node6'].map(id => document.getElementById(id));
+
+      let targetRotX = 0, targetRotY = 0;
+      let currentRotX = 0, currentRotY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        const rect = shieldSvg.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / rect.width;
+        const dy = (e.clientY - cy) / rect.height;
+        targetRotY = dx * 28;  // rotate around Y axis
+        targetRotX = -dy * 20; // rotate around X axis
+      });
+
+      document.addEventListener('mouseleave', () => {
+        targetRotX = 0;
+        targetRotY = 0;
+      });
+
+      // Touch support
+      document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+          const rect = shieldSvg.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = (e.touches[0].clientX - cx) / rect.width;
+          const dy = (e.touches[0].clientY - cy) / rect.height;
+          targetRotY = dx * 28;
+          targetRotX = -dy * 20;
+        }
+      }, { passive: true });
+      document.addEventListener('touchend', () => {
+        targetRotX = 0;
+        targetRotY = 0;
+      });
+
+      let time = 0;
+      function animateShield() {
+        // Smooth lerp
+        currentRotX += (targetRotX - currentRotX) * 0.06;
+        currentRotY += (targetRotY - currentRotY) * 0.06;
+
+        // Apply transform to entire SVG group with perspective
+        shieldSvg.style.transform = `perspective(1000px) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+        shieldSvg.style.transition = 'transform 0.1s ease-out';
+
+        // Pulse the core
+        time += 0.02;
+        const pulse = 1 + Math.sin(time) * 0.08;
+        shieldCore.setAttribute('transform', `scale(${pulse})`);
+        shieldCore.style.transformOrigin = '200px 230px';
+
+        // Dynamic node radius
+        const nodePulse = 1 + Math.sin(time * 1.5) * 0.3;
+        innerNodes.forEach((node, i) => {
+          const baseR = 3;
+          node.setAttribute('r', (baseR * nodePulse).toFixed(2));
+        });
+
+        // Corner markers subtle float
+        cornerMarkers.forEach((marker, i) => {
+          const offset = Math.sin(time * 1.2 + i) * 1.5;
+          const baseY = parseFloat(marker.getAttribute('cy'));
+          marker.setAttribute('cy', (baseY + offset).toFixed(2));
+        });
+
+        requestAnimationFrame(animateShield);
+      }
+
+      // ============================================================
+      // 3. INTERACTIVE PREMIUM CALCULATOR
+      // ============================================================
+      const state = {
+        category: 'solar',
+        baseRate: 0.0042,
+        coverMultiplier: 1.0,
+        assetValue: 5000000,
+        tier: 'low',
+        riskMultiplier: 0.85
+      };
+
+      const assetValueSlider = document.getElementById('assetValueSlider');
+      const assetValueDisplay = document.getElementById('assetValueDisplay');
+      const premiumDisplay = document.getElementById('premiumDisplay');
+      const coverDisplay = document.getElementById('coverDisplay');
+      const baseRateDisplay = document.getElementById('baseRateDisplay');
+      const multiplierDisplay = document.getElementById('multiplierDisplay');
+      const annualDisplay = document.getElementById('annualDisplay');
+
+      function formatZAR(value) {
+        return 'R ' + value.toLocaleString('en-ZA', { maximumFractionDigits: 0 });
+      }
+
+      function updateCalculator() {
+        // Update slider track fill
+        const pct = ((state.assetValue - 500000) / (50000000 - 500000)) * 100;
+        assetValueSlider.style.setProperty('--slider-pct', pct + '%');
+
+        // Display asset value
+        assetValueDisplay.textContent = formatZAR(state.assetValue);
+
+        // Calculate premium
+        // Formula: (Asset Value * Base Rate * Risk Multiplier) / 12
+        const monthlyPremium = (state.assetValue * state.baseRate * state.riskMultiplier) / 12;
+        // Cover limit: asset value * cover multiplier, capped at reasonable
+        const coverLimit = state.assetValue * state.coverMultiplier;
+
+        premiumDisplay.textContent = formatZAR(Math.round(monthlyPremium));
+        coverDisplay.textContent = formatZAR(Math.round(coverLimit));
+
+        // Display rate details
+        baseRateDisplay.textContent = (state.baseRate * 100).toFixed(2) + '%';
+        multiplierDisplay.textContent = state.riskMultiplier.toFixed(2) + 'x';
+        annualDisplay.textContent = formatZAR(Math.round(monthlyPremium * 12));
+      }
+
+      // Asset category buttons
+      document.querySelectorAll('.selector-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.category = btn.dataset.category;
+          state.baseRate = parseFloat(btn.dataset.rate);
+          state.coverMultiplier = parseFloat(btn.dataset.coverMult);
+          updateCalculator();
+        });
+      });
+
+      // Risk tier buttons
+      document.querySelectorAll('.tier-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.tier = btn.dataset.tier;
+          state.riskMultiplier = parseFloat(btn.dataset.multiplier);
+          updateCalculator();
+        });
+      });
+
+      // Asset value slider
+      assetValueSlider.addEventListener('input', (e) => {
+        state.assetValue = parseInt(e.target.value);
+        updateCalculator();
+      });
+
+      // ============================================================
+      // 4. INITIALIZATION
+      // ============================================================
+      function init() {
+        initCanvas();
+        animateShield();
+        updateCalculator();
+
+        // GSAP entrance animations
+        if (typeof gsap !== 'undefined') {
+          gsap.from('h1', { duration: 1.1, y: 40, opacity: 0, ease: 'power3.out', delay: 0.2 });
+          gsap.from('.hero-shield-container', { duration: 1.2, scale: 0.85, opacity: 0, ease: 'power2.out', delay: 0.4 });
+          gsap.from('.feature-card', { 
+            duration: 0.9, 
+            y: 30, 
+            opacity: 0, 
+            stagger: 0.15, 
+            ease: 'power2.out', 
+            delay: 0.6 
+          });
+          gsap.from('#calculator .emerald-glass', { duration: 1, y: 40, opacity: 0, ease: 'power2.out', delay: 0.3 });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
